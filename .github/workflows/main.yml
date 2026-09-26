@@ -1,0 +1,15 @@
+name: Test Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu götür
+        uses: actions/checkout@v3
+
+      - name: Test mesajı
+        run: echo "GitHub Actions serveri uğurla işləyir!"
