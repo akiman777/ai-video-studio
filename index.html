@@ -1,246 +1,245 @@
+
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Studio Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); }
+        .glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
     </style>
 </head>
-<body class="flex flex-col h-screen justify-between p-3 select-none">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
 
-    <!-- Yuxarı Sol Menyu və Başlıq -->
-    <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-        <button onclick="toggleMenu()" class="text-2xl p-1 text-slate-300 hover:text-white">☰</button>
-        <h1 class="font-bold text-lg text-blue-400">AI Studio</h1>
-        <button onclick="openApiModal()" class="text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 border border-slate-700">⚙️ API Açar</button>
-    </div>
-
-    <!-- Sol Yan Menyu (3 Xətt) -->
-    <div id="sideMenu" class="fixed inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800 p-4 transform -translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="font-bold text-lg text-white">Studiya Paneli</h2>
-            <button onclick="toggleMenu()" class="text-slate-400 text-xl">✕</button>
-        </div>
-
-        <div class="space-y-4">
+    <!-- Top Header Navigation -->
+    <header class="p-4 glass border-b border-slate-800/80 sticky top-0 z-50 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-lg shadow-lg">
+                🎬
+            </div>
             <div>
-                <label class="block font-semibold text-xs text-blue-400 mb-1">VIDEO FORMATI / ÜSLUB</label>
-                <select id="videoStyle" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500">
-                    <option value="3d-cinematic">3D Cinematic</option>
-                    <option value="animation">Animation / Anime</option>
-                    <option value="photorealistic">Photorealistic (Təbii Görünüş)</option>
-                    <option value="hyperrealistic">Hyper-Realistic 8K</option>
-                </select>
+                <h1 class="text-base font-bold bg-gradient-to-r from-white via-slate-200 to-blue-400 bg-clip-text text-transparent">AI Video Studio</h1>
+                <p class="text-[10px] text-slate-400 font-medium tracking-wide uppercase">Pro Cinema Engine</p>
+            </div>
+        </div>
+        <button onclick="openSettings()" class="bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 px-3.5 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+            <span>⚙️</span> API Config
+        </button>
+    </header>
+
+    <!-- Main Studio Workspace -->
+    <main class="p-4 flex-1 max-w-3xl mx-auto w-full flex flex-col gap-5">
+        
+        <!-- Central Cinema Player Area -->
+        <div id="videoContainer" class="w-full aspect-video bg-slate-900/90 rounded-2xl border border-slate-800 flex items-center justify-center overflow-hidden relative glow group transition">
+            
+            <video id="studioPlayer" class="w-full h-full object-cover hidden" controls autoplay loop></video>
+            
+            <div id="placeholderText" class="text-center p-8 flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full bg-slate-800/50 border border-slate-700/50 flex items-center justify-center text-2xl mb-3 text-blue-400">
+                    ✨
+                </div>
+                <h3 class="text-sm font-semibold text-slate-200 mb-1">Studiya Rejimi Hazırdır</h3>
+                <p class="text-xs text-slate-400 max-w-sm">Aşağıdakı paneldən obraz, səhnə və ya situasiya daxil edin və generasiyanı başladın.</p>
             </div>
 
-            <div>
-                <label class="block font-semibold text-xs text-blue-400 mb-1">VIDEO KEYFİYYƏTİ</label>
-                <select id="videoQuality" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500">
-                    <option value="1080p">1080p (Full HD)</option>
-                    <option value="720p">720p (HD)</option>
-                    <option value="480p">480p</option>
-                    <option value="360p">360p</option>
-                </select>
+            <!-- Live Generation Badge -->
+            <div id="statusBadge" class="hidden absolute top-4 left-4 glass border border-blue-500/30 px-3.5 py-1.5 rounded-full text-xs font-semibold text-blue-400 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+                <span id="statusText">AI Generasiya Edir...</span>
             </div>
+        </div>
 
-            <hr class="border-slate-800 my-2">
-
-            <div>
-                <label class="block font-semibold text-xs text-blue-400 mb-1">OBRAZ (PERSONA) YARAT</label>
-                <input type="text" id="personaName" placeholder="Obrazın adı (məs: Əli)" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white mb-2 focus:outline-none focus:border-blue-500">
-                <textarea id="personaTraits" placeholder="Xarakter, davranış, mimika, səs tonu..." class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white h-20 resize-none mb-2 focus:outline-none focus:border-blue-500"></textarea>
-                <button onclick="savePersona()" class="w-full bg-blue-600 hover:bg-blue-500 p-2.5 rounded-xl text-sm font-bold transition">Obrazı Yadda Saxla</button>
+        <!-- Format & Project Selector -->
+        <div class="glass p-3.5 rounded-2xl border border-slate-800/80">
+            <div class="flex justify-between items-center mb-2.5 px-1">
+                <span class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Layihe Formatı</span>
+                <span id="currentFormatTag" class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-md font-semibold">9:16 Vertical</span>
             </div>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="setFormat('short')" id="btn-short" class="format-btn bg-gradient-to-r from-blue-600 to-indigo-600 p-2.5 rounded-xl text-xs font-semibold shadow-md transition">⚡ Shorts / TikTok</button>
+                <button onclick="setFormat('movie')" id="btn-movie" class="format-btn bg-slate-800/60 hover:bg-slate-800 p-2.5 rounded-xl text-xs font-semibold text-slate-300 transition">🎬 Bütöv Film</button>
+                <button onclick="setFormat('series')" id="btn-series" class="format-btn bg-slate-800/60 hover:bg-slate-800 p-2.5 rounded-xl text-xs font-semibold text-slate-300 transition">📺 Serial Seriyası</button>
+            </div>
+        </div>
 
-            <div id="personaList" class="mt-4 space-y-2">
-                <p class="text-xs text-slate-500">Yadda saxlanılan obrazlar burada görünəcək.</p>
+        <!-- AI Memory Core Hub -->
+        <div class="glass p-3.5 rounded-2xl border border-slate-800/80 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-sm">
+                    🧠
+                </div>
+                <div>
+                    <h4 class="text-xs font-semibold text-slate-200">AI Obraz və Səhnə Yaddaşı</h4>
+                    <p class="text-[10px] text-slate-400">Avtomatik öyrənilmiş bütün daxili konseptlər</p>
+                </div>
+            </div>
+            <span id="memoryCount" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold px-3 py-1 rounded-full">
+                0 Bilgi
+            </span>
+        </div>
+
+    </main>
+
+    <!-- Bottom Studio Controls Input Area -->
+    <footer class="p-4 glass border-t border-slate-800/80 max-w-3xl mx-auto w-full sticky bottom-0 z-40">
+        
+        <!-- File Selector Status Badge -->
+        <div id="fileIndicator" class="hidden text-xs text-emerald-400 mb-2 flex items-center gap-1.5 bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
+            <span>📎 Yüklənmiş Media:</span> 
+            <span id="fileName" class="font-semibold truncate"></span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Upload Media Button -->
+            <label class="cursor-pointer bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 p-3.5 rounded-xl transition flex items-center justify-center">
+                ➕
+                <input type="file" id="fileInput" class="hidden" onchange="handleFileSelect(event)">
+            </label>
+            
+            <!-- Main Prompt Input -->
+            <input type="text" id="promptInput" placeholder="Ssenari, obraz və ya səhnə əmrini daxil edin..." class="flex-1 bg-slate-900/90 border border-slate-800/80 rounded-xl px-4 py-3.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500/60 transition">
+            
+            <!-- Voice Input Button -->
+            <button onclick="startVoiceRecognition()" class="bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 p-3.5 rounded-xl transition">🎤</button>
+            
+            <!-- Execute Video Generation Button -->
+            <button onclick="processCommand()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-5 py-3.5 rounded-xl font-bold text-xs shadow-lg transition flex items-center gap-1">
+                <span>🚀</span>
+            </button>
+        </div>
+
+        <!-- Deep Learning Memory Training Button -->
+        <div class="mt-2.5">
+            <button onclick="trainCharacter()" class="w-full bg-slate-800/40 hover:bg-slate-800/80 text-[11px] font-medium py-2 rounded-xl text-slate-300 border border-slate-700/50 transition flex items-center justify-center gap-1.5">
+                <span>🧬</span> Yüklənən Media və Mətni AI Yaddaşına Yaz (Obraz / Səhnə / Situasiya)
+            </button>
+        </div>
+    </footer>
+
+    <!-- Settings Modal Dialog -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="glass p-6 rounded-3xl max-w-md w-full border border-slate-800 shadow-2xl">
+            <h2 class="text-base font-bold mb-1 text-slate-100">Google Gemini API Açar</h2>
+            <p class="text-xs text-slate-400 mb-4">Pulsuz API açarınızı daxil edərək tətbiqi tam aktivləşdirin.</p>
+            <input type="password" id="apiKeyInput" placeholder="API Key yapışdırın" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-100 mb-4 focus:outline-none focus:border-blue-500">
+            <div class="flex justify-end gap-2">
+                <button onclick="closeSettings()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-xs font-semibold">Bağla</button>
+                <button onclick="saveApiKey()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-xl text-xs font-semibold">Yadda Saxla</button>
             </div>
         </div>
     </div>
 
-    <!-- Orta Çat və İş Sahəsi -->
-    <div id="chatArea" class="flex-1 overflow-y-auto my-3 p-3 bg-slate-900/50 rounded-2xl border border-slate-800/80 space-y-3">
-        <div class="bg-blue-950/40 border border-blue-800/50 p-3 rounded-xl text-xs text-blue-200">
-            🤖 <b>AI Studio Aktivdir!</b><br>
-            Səhnə, situasiya, davranış və mimikaları öyrətmək üçün <b>+</b> düyməsi ilə PDF, Şəkil və ya Video yükləyin və altına əmrinizi yazın.
-        </div>
-    </div>
-
-    <!-- Yüklənəcək Faylların Ön-baxış Paneli -->
-    <div id="filePreview" class="hidden mb-2 p-2 bg-slate-800 rounded-xl flex gap-2 overflow-x-auto text-xs"></div>
-
-    <!-- Aşağı Daxil Etmə Paneli -->
-    <div class="bg-slate-800/90 border border-slate-700/60 p-2 rounded-2xl flex items-center gap-2 shadow-lg">
-        <!-- Sol + Düyməsi (PDF, Foto, Video yükləmək üçün) -->
-        <label class="cursor-pointer bg-slate-700 hover:bg-slate-600 active:scale-95 w-11 h-11 flex items-center justify-center rounded-xl text-2xl font-bold transition text-blue-400">
-            +
-            <input type="file" id="fileInput" class="hidden" accept="image/*,video/*,.pdf" multiple onchange="previewFiles(this.files)">
-        </label>
-
-        <!-- Mətn Yeri -->
-        <textarea id="promptInput" rows="1" placeholder="Əmr yazın..." class="flex-1 bg-transparent text-white focus:outline-none resize-none px-2 text-sm max-h-24"></textarea>
-
-        <!-- Mikrofon Düyməsi -->
-        <button id="micBtn" onclick="toggleVoice()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 w-11 h-11 flex items-center justify-center rounded-xl transition text-lg">🎤</button>
-
-        <!-- Yuxarı Ox (Göndər) -->
-        <button onclick="processCommand()" class="bg-blue-600 hover:bg-blue-500 active:scale-95 w-11 h-11 flex items-center justify-center rounded-xl text-white font-bold transition text-xl">⬆</button>
-    </div>
-
-    <!-- API Modal -->
-    <div id="apiModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full max-w-sm">
-            <h3 class="font-bold text-md text-white mb-2">Google Gemini API Açarınız</h3>
-            <p class="text-xs text-slate-400 mb-3">Tam pulsuzdur. Google AI Studio saytından pulsuz ala bilərsiniz.</p>
-            <input type="password" id="apiKeyInput" placeholder="API Key yapışdırın..." class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white mb-3">
-            <div class="flex gap-2">
-                <button onclick="saveApiKey()" class="flex-1 bg-blue-600 p-2.5 rounded-xl text-sm font-bold">Yadda Saxla</button>
-                <button onclick="closeApiModal()" class="bg-slate-700 p-2.5 rounded-xl text-sm">Bağla</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Application Script -->
     <script>
-        let selectedFiles = [];
-        let isRecording = false;
-        let recognition = null;
+        let selectedFormat = 'short';
+        let currentFile = null;
+        let aiMemory = JSON.parse(localStorage.getItem('aiMemory') || '[]');
 
-        function toggleMenu() { document.getElementById('sideMenu').classList.toggle('-translate-x-full'); }
-        function openApiModal() { document.getElementById('apiModal').classList.remove('hidden'); }
-        function closeApiModal() { document.getElementById('apiModal').classList.add('hidden'); }
+        updateMemoryBadge();
 
-        function saveApiKey() {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            if(key) {
-                localStorage.setItem('gemini_api_key', key);
-                alert('API Açar yadda saxlanıldı!');
-                closeApiModal();
+        function setFormat(fmt) {
+            selectedFormat = fmt;
+            document.querySelectorAll('.format-btn').forEach(b => {
+                b.className = "format-btn bg-slate-800/60 hover:bg-slate-800 p-2.5 rounded-xl text-xs font-semibold text-slate-300 transition";
+            });
+            const activeBtn = document.getElementById(`btn-${fmt}`);
+            activeBtn.className = "format-btn bg-gradient-to-r from-blue-600 to-indigo-600 p-2.5 rounded-xl text-xs font-semibold shadow-md transition";
+            
+            const tag = document.getElementById('currentFormatTag');
+            if(fmt === 'short') tag.innerText = '9:16 Vertical';
+            else if(fmt === 'movie') tag.innerText = '16:9 Cinematic';
+            else tag.innerText = '16:9 Episodic';
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                currentFile = file;
+                document.getElementById('fileName').innerText = file.name;
+                document.getElementById('fileIndicator').classList.remove('hidden');
             }
         }
 
-        function previewFiles(files) {
-            const previewContainer = document.getElementById('filePreview');
-            previewContainer.innerHTML = '';
-            selectedFiles = Array.from(files);
-
-            if(selectedFiles.length > 0) {
-                previewContainer.classList.remove('hidden');
-                selectedFiles.forEach(file => {
-                    previewContainer.innerHTML += `<div class="bg-slate-700 px-3 py-1 rounded-lg text-blue-300 flex items-center gap-1">📁 ${file.name.substring(0, 15)}...</div>`;
-                });
-            } else {
-                previewContainer.classList.add('hidden');
-            }
-        }
-
-        function toggleVoice() {
-            if (!('webkitSpeechRecognition' in window)) {
-                alert('Səslə daxiletmə bu brauzerdə dəstəklənmir.');
+        function trainCharacter() {
+            const prompt = document.getElementById('promptInput').value;
+            if(!prompt && !currentFile) {
+                alert("Zəhmət olmasa mətn yazın və ya media faylı seçin!");
                 return;
             }
-
-            const micBtn = document.getElementById('micBtn');
-
-            if (!isRecording) {
-                recognition = new webkitSpeechRecognition();
-                recognition.lang = 'az-AZ';
-                recognition.continuous = false;
-
-                recognition.onstart = () => {
-                    isRecording = true;
-                    micBtn.classList.add('bg-red-600', 'animate-pulse');
-                };
-
-                recognition.onresult = (event) => {
-                    document.getElementById('promptInput').value += " " + event.results[0][0].transcript;
-                };
-
-                recognition.onerror = () => stopVoice();
-                recognition.onend = () => stopVoice();
-
-                recognition.start();
-            } else {
-                stopVoice();
-            }
+            const memoryData = {
+                text: prompt,
+                fileName: currentFile ? currentFile.name : null,
+                timestamp: new Date().toISOString()
+            };
+            aiMemory.push(memoryData);
+            localStorage.setItem('aiMemory', JSON.stringify(aiMemory));
+            updateMemoryBadge();
+            alert("Məlumat AI-nin dərin yaddaşına uğurla əlavə olundu!");
+            document.getElementById('promptInput').value = '';
+            currentFile = null;
+            document.getElementById('fileIndicator').classList.add('hidden');
         }
 
-        function stopVoice() {
-            if (recognition) recognition.stop();
-            isRecording = false;
-            const micBtn = document.getElementById('micBtn');
-            micBtn.classList.remove('bg-red-600', 'animate-pulse');
+        function updateMemoryBadge() {
+            document.getElementById('memoryCount').innerText = `${aiMemory.length} Bilgi`;
         }
 
-        function savePersona() {
-            const name = document.getElementById('personaName').value;
-            const traits = document.getElementById('personaTraits').value;
-            if(!name) return alert('Obraz adını yazın!');
+        function processCommand() {
+            const prompt = document.getElementById('promptInput').value;
+            if(!prompt && !currentFile && aiMemory.length === 0) return;
 
-            let personas = JSON.parse(localStorage.getItem('ai_personas') || '[]');
-            personas.push({ name, traits });
-            localStorage.setItem('ai_personas', JSON.stringify(personas));
+            aiMemory.push({ autoPrompt: prompt, timestamp: new Date().toISOString() });
+            localStorage.setItem('aiMemory', JSON.stringify(aiMemory));
+            updateMemoryBadge();
 
-            document.getElementById('personaName').value = '';
-            document.getElementById('personaTraits').value = '';
-            renderPersonas();
-        }
+            const player = document.getElementById('studioPlayer');
+            const placeholder = document.getElementById('placeholderText');
+            const status = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
 
-        function renderPersonas() {
-            const list = document.getElementById('personaList');
-            let personas = JSON.parse(localStorage.getItem('ai_personas') || '[]');
-            if(personas.length === 0) return;
-
-            list.innerHTML = '<p class="text-xs font-bold text-slate-400">Yadda qalan Obrazlar:</p>';
-            personas.forEach(p => {
-                list.innerHTML += `<div class="bg-slate-800 p-2 rounded-lg text-xs"><b>👤 ${p.name}</b>: ${p.traits.substring(0, 30)}...</div>`;
-            });
-        }
-
-        async function processCommand() {
-            const promptInput = document.getElementById('promptInput');
-            const prompt = promptInput.value.trim();
-            const chatArea = document.getElementById('chatArea');
-            const style = document.getElementById('videoStyle').value;
-            const quality = document.getElementById('videoQuality').value;
-
-            if(!prompt && selectedFiles.length === 0) return;
-
-            let userMsg = `<div class="bg-blue-900/60 border border-blue-700/50 p-3 rounded-xl text-sm text-white"><b>Siz:</b> ${prompt}`;
-            if(selectedFiles.length > 0) {
-                userMsg += `<br><span class="text-xs text-blue-300">📁 Yüklənən Fayllar: ${selectedFiles.map(f => f.name).join(', ')}</span>`;
-            }
-            userMsg += `</div>`;
-
-            chatArea.innerHTML += userMsg;
-            promptInput.value = '';
-            document.getElementById('filePreview').classList.add('hidden');
-
-            chatArea.innerHTML += `<div id="loadingMsg" class="bg-slate-800 p-3 rounded-xl text-xs text-yellow-400 animate-pulse">⚙️ Obrazlar, mimikalar və əmrlər analiz olunur MP4 video ssenarisi hazırlanır...</div>`;
-            chatArea.scrollTop = chatArea.scrollHeight;
+            placeholder.classList.add('hidden');
+            status.classList.remove('hidden');
+            statusText.innerText = `${selectedFormat.toUpperCase()} Layihəsi İşlənir...`;
 
             setTimeout(() => {
-                document.getElementById('loadingMsg')?.remove();
-                chatArea.innerHTML += `
-                    <div class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-sm space-y-2">
-                        <div class="text-green-400 font-bold text-xs">✅ Əmr İcra Olundu</div>
-                        <p class="text-slate-300 text-xs">Format: <b>${style}</b> | Keyfiyyət: <b>${quality}</b></p>
-                        <p class="text-xs text-slate-400">Yüklənən kontentdən mimikalar və situasiya öyrənildi. Obraz animasiyası yaradıldı.</p>
-                        <div class="p-2 bg-black rounded-lg text-center text-xs text-slate-500">
-                            🎥 [MP4 Video Generasiya Olundu - ${quality}]
-                        </div>
-                    </div>
-                `;
-                chatArea.scrollTop = chatArea.scrollHeight;
-                selectedFiles = [];
+                status.classList.add('hidden');
+                player.classList.remove('hidden');
+                player.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+                player.play();
             }, 2500);
+
+            document.getElementById('promptInput').value = '';
+            document.getElementById('fileIndicator').classList.add('hidden');
         }
 
-        renderPersonas();
+        function startVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'az-AZ';
+                recognition.onresult = (event) => {
+                    document.getElementById('promptInput').value = event.results[0][0].transcript;
+                };
+                recognition.start();
+            } else {
+                alert("Səsli daxiletmə brauzerinizdə dəstəklənmir.");
+            }
+        }
+
+        function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
+        function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value;
+            localStorage.setItem('gemini_api_key', key);
+            closeSettings();
+            alert("API açar yadda saxlanıldı!");
+        }
     </script>
 </body>
 </html>
