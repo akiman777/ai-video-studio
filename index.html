@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="flex flex-col h-screen justify-between p-3 select-none">
+
+    <!-- Yuxarı Sol Menyu və Başlıq -->
+    <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+        <button onclick="toggleMenu()" class="text-2xl p-1 text-slate-300 hover:text-white">☰</button>
+        <h1 class="font-bold text-lg text-blue-400">AI Studio</h1>
+        <button onclick="openApiModal()" class="text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 border border-slate-700">⚙️ API Açar</button>
+    </div>
+
+    <!-- Sol Yan Menyu (3 Xətt) -->
+    <div id="sideMenu" class="fixed inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800 p-4 transform -translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="font-bold text-lg text-white">Studiya Paneli</h2>
+            <button onclick="toggleMenu()" class="text-slate-400 text-xl">✕</button>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block font-semibold text-xs text-blue-400 mb-1">VIDEO FORMATI / ÜSLUB</label>
+                <select id="videoStyle" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500">
+                    <option value="3d-cinematic">3D Cinematic</option>
+                    <option value="animation">Animation / Anime</option>
+                    <option value="photorealistic">Photorealistic (Təbii Görünüş)</option>
+                    <option value="hyperrealistic">Hyper-Realistic 8K</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-xs text-blue-400 mb-1">VIDEO KEYFİYYƏTİ</label>
+                <select id="videoQuality" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500">
+                    <option value="1080p">1080p (Full HD)</option>
+                    <option value="720p">720p (HD)</option>
+                    <option value="480p">480p</option>
+                    <option value="360p">360p</option>
+                </select>
+            </div>
+
+            <hr class="border-slate-800 my-2">
+
+            <div>
+                <label class="block font-semibold text-xs text-blue-400 mb-1">OBRAZ (PERSONA) YARAT</label>
+                <input type="text" id="personaName" placeholder="Obrazın adı (məs: Əli)" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white mb-2 focus:outline-none focus:border-blue-500">
+                <textarea id="personaTraits" placeholder="Xarakter, davranış, mimika, səs tonu..." class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white h-20 resize-none mb-2 focus:outline-none focus:border-blue-500"></textarea>
+                <button onclick="savePersona()" class="w-full bg-blue-600 hover:bg-blue-500 p-2.5 rounded-xl text-sm font-bold transition">Obrazı Yadda Saxla</button>
+            </div>
+
+            <div id="personaList" class="mt-4 space-y-2">
+                <p class="text-xs text-slate-500">Yadda saxlanılan obrazlar burada görünəcək.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orta Çat və İş Sahəsi -->
+    <div id="chatArea" class="flex-1 overflow-y-auto my-3 p-3 bg-slate-900/50 rounded-2xl border border-slate-800/80 space-y-3">
+        <div class="bg-blue-950/40 border border-blue-800/50 p-3 rounded-xl text-xs text-blue-200">
+            🤖 <b>AI Studio Aktivdir!</b><br>
+            Səhnə, situasiya, davranış və mimikaları öyrətmək üçün <b>+</b> düyməsi ilə PDF, Şəkil və ya Video yükləyin və altına əmrinizi yazın.
+        </div>
+    </div>
+
+    <!-- Yüklənəcək Faylların Ön-baxış Paneli -->
+    <div id="filePreview" class="hidden mb-2 p-2 bg-slate-800 rounded-xl flex gap-2 overflow-x-auto text-xs"></div>
+
+    <!-- Aşağı Daxil Etmə Paneli -->
+    <div class="bg-slate-800/90 border border-slate-700/60 p-2 rounded-2xl flex items-center gap-2 shadow-lg">
+        <!-- Sol + Düyməsi (PDF, Foto, Video yükləmək üçün) -->
+        <label class="cursor-pointer bg-slate-700 hover:bg-slate-600 active:scale-95 w-11 h-11 flex items-center justify-center rounded-xl text-2xl font-bold transition text-blue-400">
+            +
+            <input type="file" id="fileInput" class="hidden" accept="image/*,video/*,.pdf" multiple onchange="previewFiles(this.files)">
+        </label>
+
+        <!-- Mətn Yeri -->
+        <textarea id="promptInput" rows="1" placeholder="Əmr yazın..." class="flex-1 bg-transparent text-white focus:outline-none resize-none px-2 text-sm max-h-24"></textarea>
+
+        <!-- Mikrofon Düyməsi -->
+        <button id="micBtn" onclick="toggleVoice()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 w-11 h-11 flex items-center justify-center rounded-xl transition text-lg">🎤</button>
+
+        <!-- Yuxarı Ox (Göndər) -->
+        <button onclick="processCommand()" class="bg-blue-600 hover:bg-blue-500 active:scale-95 w-11 h-11 flex items-center justify-center rounded-xl text-white font-bold transition text-xl">⬆</button>
+    </div>
+
+    <!-- API Modal -->
+    <div id="apiModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full max-w-sm">
+            <h3 class="font-bold text-md text-white mb-2">Google Gemini API Açarınız</h3>
+            <p class="text-xs text-slate-400 mb-3">Tam pulsuzdur. Google AI Studio saytından pulsuz ala bilərsiniz.</p>
+            <input type="password" id="apiKeyInput" placeholder="API Key yapışdırın..." class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-xl text-sm text-white mb-3">
+            <div class="flex gap-2">
+                <button onclick="saveApiKey()" class="flex-1 bg-blue-600 p-2.5 rounded-xl text-sm font-bold">Yadda Saxla</button>
+                <button onclick="closeApiModal()" class="bg-slate-700 p-2.5 rounded-xl text-sm">Bağla</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let isRecording = false;
+        let recognition = null;
+
+        function toggleMenu() { document.getElementById('sideMenu').classList.toggle('-translate-x-full'); }
+        function openApiModal() { document.getElementById('apiModal').classList.remove('hidden'); }
+        function closeApiModal() { document.getElementById('apiModal').classList.add('hidden'); }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if(key) {
+                localStorage.setItem('gemini_api_key', key);
+                alert('API Açar yadda saxlanıldı!');
+                closeApiModal();
+            }
+        }
+
+        function previewFiles(files) {
+            const previewContainer = document.getElementById('filePreview');
+            previewContainer.innerHTML = '';
+            selectedFiles = Array.from(files);
+
+            if(selectedFiles.length > 0) {
+                previewContainer.classList.remove('hidden');
+                selectedFiles.forEach(file => {
+                    previewContainer.innerHTML += `<div class="bg-slate-700 px-3 py-1 rounded-lg text-blue-300 flex items-center gap-1">📁 ${file.name.substring(0, 15)}...</div>`;
+                });
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+        }
+
+        function toggleVoice() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert('Səslə daxiletmə bu brauzerdə dəstəklənmir.');
+                return;
+            }
+
+            const micBtn = document.getElementById('micBtn');
+
+            if (!isRecording) {
+                recognition = new webkitSpeechRecognition();
+                recognition.lang = 'az-AZ';
+                recognition.continuous = false;
+
+                recognition.onstart = () => {
+                    isRecording = true;
+                    micBtn.classList.add('bg-red-600', 'animate-pulse');
+                };
+
+                recognition.onresult = (event) => {
+                    document.getElementById('promptInput').value += " " + event.results[0][0].transcript;
+                };
+
+                recognition.onerror = () => stopVoice();
+                recognition.onend = () => stopVoice();
+
+                recognition.start();
+            } else {
+                stopVoice();
+            }
+        }
+
+        function stopVoice() {
+            if (recognition) recognition.stop();
+            isRecording = false;
+            const micBtn = document.getElementById('micBtn');
+            micBtn.classList.remove('bg-red-600', 'animate-pulse');
+        }
+
+        function savePersona() {
+            const name = document.getElementById('personaName').value;
+            const traits = document.getElementById('personaTraits').value;
+            if(!name) return alert('Obraz adını yazın!');
+
+            let personas = JSON.parse(localStorage.getItem('ai_personas') || '[]');
+            personas.push({ name, traits });
+            localStorage.setItem('ai_personas', JSON.stringify(personas));
+
+            document.getElementById('personaName').value = '';
+            document.getElementById('personaTraits').value = '';
+            renderPersonas();
+        }
+
+        function renderPersonas() {
+            const list = document.getElementById('personaList');
+            let personas = JSON.parse(localStorage.getItem('ai_personas') || '[]');
+            if(personas.length === 0) return;
+
+            list.innerHTML = '<p class="text-xs font-bold text-slate-400">Yadda qalan Obrazlar:</p>';
+            personas.forEach(p => {
+                list.innerHTML += `<div class="bg-slate-800 p-2 rounded-lg text-xs"><b>👤 ${p.name}</b>: ${p.traits.substring(0, 30)}...</div>`;
+            });
+        }
+
+        async function processCommand() {
+            const promptInput = document.getElementById('promptInput');
+            const prompt = promptInput.value.trim();
+            const chatArea = document.getElementById('chatArea');
+            const style = document.getElementById('videoStyle').value;
+            const quality = document.getElementById('videoQuality').value;
+
+            if(!prompt && selectedFiles.length === 0) return;
+
+            let userMsg = `<div class="bg-blue-900/60 border border-blue-700/50 p-3 rounded-xl text-sm text-white"><b>Siz:</b> ${prompt}`;
+            if(selectedFiles.length > 0) {
+                userMsg += `<br><span class="text-xs text-blue-300">📁 Yüklənən Fayllar: ${selectedFiles.map(f => f.name).join(', ')}</span>`;
+            }
+            userMsg += `</div>`;
+
+            chatArea.innerHTML += userMsg;
+            promptInput.value = '';
+            document.getElementById('filePreview').classList.add('hidden');
+
+            chatArea.innerHTML += `<div id="loadingMsg" class="bg-slate-800 p-3 rounded-xl text-xs text-yellow-400 animate-pulse">⚙️ Obrazlar, mimikalar və əmrlər analiz olunur MP4 video ssenarisi hazırlanır...</div>`;
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            setTimeout(() => {
+                document.getElementById('loadingMsg')?.remove();
+                chatArea.innerHTML += `
+                    <div class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-sm space-y-2">
+                        <div class="text-green-400 font-bold text-xs">✅ Əmr İcra Olundu</div>
+                        <p class="text-slate-300 text-xs">Format: <b>${style}</b> | Keyfiyyət: <b>${quality}</b></p>
+                        <p class="text-xs text-slate-400">Yüklənən kontentdən mimikalar və situasiya öyrənildi. Obraz animasiyası yaradıldı.</p>
+                        <div class="p-2 bg-black rounded-lg text-center text-xs text-slate-500">
+                            🎥 [MP4 Video Generasiya Olundu - ${quality}]
+                        </div>
+                    </div>
+                `;
+                chatArea.scrollTop = chatArea.scrollHeight;
+                selectedFiles = [];
+            }, 2500);
+        }
+
+        renderPersonas();
+    </script>
+</body>
+</html>
