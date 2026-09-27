@@ -15,8 +15,9 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white pb-24">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white pb-32">
 
+    <!-- Header Navigation -->
     <header class="p-4 glass border-b border-slate-800/80 sticky top-0 z-50 flex justify-between items-center">
         <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-600 flex items-center justify-center font-black text-lg shadow-lg">
@@ -32,8 +33,10 @@
         </button>
     </header>
 
+    <!-- Main Workspace Area -->
     <main class="p-4 flex-1 max-w-3xl mx-auto w-full flex flex-col gap-5">
         
+        <!-- SECTION 1: STUDIO DISPLAY -->
         <div id="tab-studio" class="tab-content flex flex-col gap-5">
             <div id="visualizerContainer" class="w-full min-h-[220px] bg-slate-900/90 rounded-2xl border border-slate-800 flex flex-col items-center justify-center overflow-hidden relative glow p-5">
                 <div id="placeholderText" class="text-center flex flex-col items-center">
@@ -62,6 +65,7 @@
                 </div>
             </div>
 
+            <!-- Project Format Selector -->
             <div class="glass p-3 rounded-2xl border border-slate-800/80">
                 <div class="flex justify-between items-center mb-2 px-1">
                     <span class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Layihə Formatı</span>
@@ -75,6 +79,7 @@
             </div>
         </div>
 
+        <!-- SECTION 2: FULL CATALOG & PRESETS -->
         <div id="tab-catalog" class="tab-content hidden flex flex-col gap-4">
             <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Genişləndirilmiş Rejissor Kataloqu</h2>
             
@@ -107,6 +112,7 @@
             </div>
         </div>
 
+        <!-- SECTION 3: DEEP MEMORY & CORE HUB -->
         <div id="tab-memory" class="tab-content hidden flex flex-col gap-4">
             <div class="glass p-4 rounded-2xl border border-slate-800/80 flex flex-col gap-3">
                 <div class="flex items-center justify-between">
@@ -127,21 +133,35 @@
 
     </main>
 
-    <footer class="p-3.5 glass border-t border-slate-800/80 max-w-3xl mx-auto w-full fixed bottom-12 left-0 right-0 z-40">
+    <!-- Gemini Style Bottom Bar -->
+    <footer class="p-3 max-w-3xl mx-auto w-full fixed bottom-12 left-0 right-0 z-40 px-4">
         <div id="fileIndicator" class="hidden text-xs text-emerald-400 mb-2 flex items-center gap-1.5 bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
             <span>📎 Yüklənib:</span> <span id="fileName" class="font-semibold truncate"></span>
         </div>
 
-        <div class="flex items-center gap-2">
-            <label class="cursor-pointer bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 p-3 rounded-xl transition flex items-center justify-center">
+        <!-- Gemini-style oval container -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-full p-1.5 pl-4 flex items-center gap-2 shadow-2xl backdrop-blur-xl">
+            <!-- Left: Plus Icon -->
+            <label class="cursor-pointer text-slate-400 hover:text-slate-200 text-lg flex items-center justify-center px-1">
                 ➕ <input type="file" id="fileInput" class="hidden" onchange="handleFileSelect(event)">
             </label>
-            <input type="text" id="promptInput" placeholder="Ssenari daxil edin və ya kataloqdan rejim seçin..." class="flex-1 bg-slate-900/90 border border-slate-800/80 rounded-xl px-3.5 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500/60 transition">
-            <button onclick="startVoiceRecognition()" class="bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 p-3 rounded-xl transition">🎤</button>
-            <button onclick="processCommand()" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-90 px-4 py-3 rounded-xl font-bold text-xs shadow-lg transition">🚀</button>
+
+            <!-- Center: Text Input -->
+            <input type="text" id="promptInput" placeholder="Ssenari daxil edin və ya kataloqdan rejim seçin..." class="flex-1 bg-transparent border-none text-xs text-slate-100 placeholder-slate-500 focus:outline-none py-2">
+
+            <!-- Right 1: Voice Microphone -->
+            <button onclick="startVoiceRecognition()" class="text-slate-400 hover:text-slate-200 text-lg px-2 flex items-center justify-center">
+                🎤
+            </button>
+
+            <!-- Right 2: Blue Circle Send Button with Up Arrow -->
+            <button onclick="processCommand()" class="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-base font-bold shadow-md transition-all active:scale-95">
+                ↑
+            </button>
         </div>
     </footer>
 
+    <!-- Tab Navigation Footer -->
     <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800/80 py-2 px-6 flex justify-around items-center z-50 max-w-3xl mx-auto">
         <button onclick="switchTab('studio')" id="nav-studio" class="flex flex-col items-center text-blue-400">
             <span class="text-base">🎬</span>
@@ -157,6 +177,7 @@
         </button>
     </nav>
 
+    <!-- Settings Modal -->
     <div id="settingsModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
         <div class="glass p-6 rounded-3xl max-w-md w-full border border-slate-800 shadow-2xl">
             <h2 class="text-base font-bold mb-1 text-slate-100">Google Gemini API Açar</h2>
@@ -169,6 +190,7 @@
         </div>
     </div>
 
+    <!-- Application Script -->
     <script>
         let selectedFormat = 'short';
         let currentFile = null;
@@ -222,6 +244,12 @@
 
             const apiKey = localStorage.getItem('gemini_api_key');
             
+            if (!apiKey) {
+                alert("Xahiş olunur sağ yuxarıdakı 'API Config' bölməsindən Gemini API Key-inizi daxil edin!");
+                openSettings();
+                return;
+            }
+
             aiMemory.push({ autoPrompt: prompt, timestamp: new Date().toISOString() });
             localStorage.setItem('aiMemory', JSON.stringify(aiMemory));
             updateMemoryBadge();
@@ -231,26 +259,30 @@
             document.getElementById('statusBadge').classList.remove('hidden');
             document.getElementById('outputFormatBadge').innerText = `Format: ${selectedFormat.toUpperCase()}`;
 
-            if(apiKey) {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: `Sən peşəkar film rejissorusan. Aşağıdakı istəyə uyğun kinematik vizual səhnə kadrajı və ssenari hazırla.\nFormat: ${selectedFormat}\nƏmr: ${prompt}\nYaddaşdakı kontekst: ${JSON.stringify(aiMemory.slice(-3))}`
-                                }]
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Sən peşəkar rejissorsan. Bu istəyə uyğun olaraq kinematik video ssenarisi, kadr təsviri (video prompt) və işıq/kamera parametrlərini hazırla:\nFormat: ${selectedFormat}\nİstək: ${prompt}`
                             }]
-                        })
-                    });
-                    const data = await response.json();
-                    document.getElementById('generatedContent').innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Səhnə generasiya olundu.";
-                } catch(e) {
-                    document.getElementById('generatedContent').innerText = `[KADRAJ GENERASİYASI]\n🎬 Səhnə: ${prompt}\n📐 Format: ${selectedFormat}`;
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('generatedContent').innerText = "API Xətası: " + data.error.message;
+                } else if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    document.getElementById('generatedContent').innerText = data.candidates[0].content.parts[0].text;
+                } else {
+                    document.getElementById('generatedContent').innerText = "AI-dən cavab alına bilmədi. Xahiş olunur API açarınızı və internet bağlantınızı yoxlayın.";
                 }
-            } else {
-                document.getElementById('generatedContent').innerText = `[DEMO KADRAJ]\n🎬 Səhnə: ${prompt}\n📐 Format: ${selectedFormat}\n💡 Gemini API açarı daxil edin.`;
+            } catch(e) {
+                document.getElementById('generatedContent').innerText = "Şəbəkə xətası baş verdi. API açarını düzgün daxil etdiyinizdən əmin olun.";
             }
 
             document.getElementById('statusBadge').classList.add('hidden');
@@ -269,14 +301,24 @@
             }
         }
 
-        function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
+        function openSettings() { 
+            document.getElementById('settingsModal').classList.remove('hidden'); 
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+        }
         function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
         function saveApiKey() {
-            localStorage.setItem('gemini_api_key', document.getElementById('apiKeyInput').value);
-            closeSettings();
-            alert("API açar saxlanıldı!");
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+                closeSettings();
+                alert("API açar uğurla saxlanıldı!");
+            } else {
+                alert("Lütfən keçərli bir API açar yazın.");
+            }
         }
     </script>
 </body>
 </html>
+
 
